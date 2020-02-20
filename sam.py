@@ -32,20 +32,19 @@ class Library:
         self.id = Library.inst_num
         Library.inst_num += 1
     
-    def signUp(self):
-        if self.signedUp:
-            return True
+    def decrementCounter(self):
+        #if self.signedUp:
+            #return True
             
         if self.signUpCounter <= 0:
+            self.signUpCounter = 0
             self.signedUp = True
-            return True
 
         self.signUpCounter -= 1
-        return False
 
     def scan(self):
 
-        booksToRemove = []
+        #booksToRemove = []
         booksToScan = []
 
         for i in range(self.booksPerDay):
@@ -58,11 +57,13 @@ class Library:
                     self.books.pop(j)
                     continue
                 #print(b)
-                booksToScan.append(b)
-                self.books.pop(j)
+                if len(booksToScan) < self.booksPerDay:
+                    booksToScan.append(b)
+                    self.books.pop(j)
+                    continue
+                break
                 #break
-                if len(booksToScan) == self.booksPerDay:
-                    break
+                
             
             #print(self.books)
             
@@ -138,6 +139,8 @@ def getScore(l):
 
 libraries.sort(key=getScore, reverse=True)
 
+signUpReady = True
+signUpCounter = None
 currentLibrary = None
 scannedBooks = []
 while currentDay < numDays:
@@ -146,20 +149,30 @@ while currentDay < numDays:
     print(currentDay, "/", numDays)
 
     for l in libraries:
+
         #print(l.id, l.getScore())
             
-        if not l.signUp():
-            print("signing up l{} - {} days remain - signed up {} - score {}".format(l.id, l.signUpCounter, str(l.signedUp), str(l.getScore())))
-            currentLibrary = l.id
-            continue
-
-        books = l.scan()
-        if books:
-            #print("l{} scans [b{}]".format(l.id, ", b".join(str(b.id) + " score" + str(b.score) for b in books)))
-            for b in books:
-                print("l{} scans [b{} score{}]".format(l.id, b.id, b.score))
-                scannedBooks.append(b)
+        if signUpReady == True:
+            if l.signedUp == False:
+                signUpReady = False
+                print("signing up l{} - {} days remain - signed up {} - score {}".format(l.id, l.signUpCounter, str(l.signedUp), str(l.getScore())))
+                currentLibrary = l
         
+        if currentLibrary != None:
+            print("signing up l{} - {} days remain - signed up {} - score {}".format(currentLibrary.id, currentLibrary.signUpCounter, str(currentLibrary.signedUp), str(currentLibrary.getScore())))
+            currentLibrary.decrementCounter()
+            if currentLibrary.signUpCounter <= 0:
+                signUpReady = True
+                    #continue
+        
+        if l.signedUp:
+            books = l.scan()
+            if books:
+                #print("l{} scans [b{}]".format(l.id, ", b".join(str(b.id) + " score" + str(b.score) for b in books)))
+                for b in books:
+                    print("l{} scans [b{} score{}]".format(l.id, b.id, b.score))
+                    scannedBooks.append(b)
+        
+        libraries.sort(key=getScore, reverse=True)
     
-    #input()
     currentDay += 1
