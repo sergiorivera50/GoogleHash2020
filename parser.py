@@ -33,9 +33,10 @@ def parseData(fileName):
         count += 2 # jump to the next library
         libraryCount += 1
     
+    return allBooks, libraries
 
 
-parseData(r"\\tawe_dfs\students\1\1906931\Documents\GitHub\GoogleHash2020\a_example.txt")
+allBooks, libraries = parseData("a_example.txt")
 
 """
 init_data = lines[0].split()

@@ -33,34 +33,74 @@ class Library:
                 return True
         return False
 
+def parseData(fileName):
+    with open(fileName, "r") as f:
+        lines = list(l.strip() for l in f.readlines())
+        f.close()
+
+    initData = lines[0].split()
+    numBooks = int(initData[0])
+    numLibraries = int(initData[1])
+    days = int(initData[2])
+
+    print(numBooks, numLibraries, days)
+    
+    bookScores = lines[1].split()
+    print(bookScores)
+
+    allBooks = []
+    for i in range(numBooks):
+        allBooks.append(Book(bookScores[i]))
+
+    libraries = []
+    libraryCount = 0
+    count = 2
+    for i in range(numLibraries):
+        libraryData = lines[count].split()
+        numBooks = int(libraryData[0])
+        libraryBooksIds = lines[count+1].split() # get book ids for this library from next line
+        libraryBooks = []
+        #for j in range(len(libraryBooksIds)):
+            #for book in allBooks:
+                #if book.id == int(libraryBooksIds[j]):
+                    #libraryBooks.append(book)
+        for i in libraryBooksIds:
+            libraryBooks.append(allBooks[int(i)])
+        libraries.append(Library(libraryBooks, libraryData[1], libraryData[2]))
+        count += 2 # jump to the next library
+        libraryCount += 1
+
+    return allBooks, libraries, days
+
 def getBookById(id):
     return allBooks[id]
 
-numAllBooks = 6
-numLibraries = 2
-numDays = 7
+allBooks, libraries, numDays = parseData("a_example.txt")
 
-allBooks = []
-libraries = []
+numAllBooks = len(allBooks)
+numLibraries = len(libraries)
 
-for i in range(numAllBooks):
-    score = random.randint(0, 10**3)
-    allBooks.append(Book(score))
+#allBooks = []
+#libraries = []
 
-for i in range(numLibraries):
-    numberOfBooks = random.randint(1, numAllBooks)
-    daysToSignUp = random.randint(1, 10**5)
-    booksPerDay = random.randint(1, 10**5)
+#for i in range(numAllBooks):
+    #score = random.randint(0, 10**3)
+    #allBooks.append(Book(score))
+
+#for i in range(numLibraries):
+    #numberOfBooks = random.randint(1, numAllBooks)
+    #daysToSignUp = random.randint(1, 10**5)
+    #booksPerDay = random.randint(1, 10**5)
     
-    books = []
-    pool = list(range(numAllBooks))
-    for b in range(numberOfBooks):
+    #books = []
+    #pool = list(range(numAllBooks))
+    #for b in range(numberOfBooks):
         # get ids
-        choice = random.choice(pool)
-        pool.pop(pool.index(choice))
-        books.append(getBookById(choice))
+        #choice = random.choice(pool)
+        #pool.pop(pool.index(choice))
+        #books.append(getBookById(choice))
 
-    libraries.append(Library(books, daysToSignUp, booksPerDay))
+    #libraries.append(Library(books, daysToSignUp, booksPerDay))
 
 for b in allBooks:
     print(b.id, b.score)
