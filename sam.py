@@ -18,19 +18,22 @@ class Library:
         self.booksPerDay = booksPerDay
 
         self.signedUp = False
-        self.signUpStartDay = None
-        self.signUpEndDay = None
+        self.count = self.daysToSignUp
+        #self.signUpStartDay = None
+        #self.signUpEndDay = None
 
         self.id = Library.inst_num
         Library.inst_num += 1
     
     def signUp(self):
-        if self.signUpStartDay == None:
-            self.signUpStartDay = currentDay
-            self.signUpEndDay = self.signUpStartDay + self.daysToSignUp
-        else:
-            if currentDay >= self.signUpEndDay:
-                return True
+        if self.signedUp:
+            return True
+            
+        if self.count <= 0:
+            self.signedUp = True
+            return True
+
+        self.count -= 1
         return False
 
     def getScore(self):
@@ -97,12 +100,12 @@ libraries.sort(key=getScore, reverse=True)
 currentLibrary = None
 while currentDay < numDays:
     for l in libraries:
-        print(l.id, l.getScore())
-        if l.signedUp == False and currentLibrary != l.id:
+        #print(l.id, l.getScore())
             
-            l.signUp()
-            print("signing up l{} - {} ".format(l.id, l.signUpEndDay - currentDay, l.signUpEndDay))
+        if not l.signUp():
+            print("signing up l{} - {} days remain - signed up {}".format(l.id, l.count, str(l.signedUp)))
             currentLibrary = l.id
+            break
     
     #input()
     currentDay += 1
