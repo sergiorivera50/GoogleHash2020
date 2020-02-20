@@ -28,6 +28,7 @@ class Library:
         #self.scanCounter = 1
         #self.signUpStartDay = None
         #self.signUpEndDay = None
+        self.sentOrderedBooks = []
 
         self.id = Library.inst_num
         Library.inst_num += 1
@@ -35,35 +36,38 @@ class Library:
     def decrementCounter(self):
         #if self.signedUp:
             #return True
+        
+        self.signUpCounter -= 1
             
         if self.signUpCounter <= 0:
             self.signUpCounter = 0
             self.signedUp = True
 
-        self.signUpCounter -= 1
+        
 
     def scan(self):
 
         booksToRemove = []
         booksToScan = []
 
-        for i in range(self.booksPerDay):
 
             #print(self.books)
 
-            for j, b in enumerate(self.books):
-                if b == None:
-                    continue
-                if b in scannedBooks:
-                    booksToRemove.append(j)
-                    #self.books.pop(j)
-                    continue
-                #print(b)
-                if len(booksToScan) < self.booksPerDay:
-                    booksToScan.append(b)
-                    #self.books.pop(j)
-                    booksToRemove.append(j)
-                    continue
+        for j, b in enumerate(self.books):
+            if b == None:
+                continue
+            if b in scannedBooks:
+                booksToRemove.append(j)
+                #self.books.pop(j)
+                continue
+            #print(b)
+            if len(booksToScan) < self.booksPerDay:
+                booksToScan.append(b)
+                self.sentOrderedBooks.append(b.id)
+                #self.books.pop(j)
+                booksToRemove.append(j)
+                continue
+            else:
                 break
                 #break
                 
@@ -72,6 +76,8 @@ class Library:
             
         #for b in booksToScan:
             #self.books[b.id] = None
+        
+        #print(booksToScan)
 
         for i in booksToRemove:
             self.books[i] = None
@@ -126,59 +132,83 @@ def getBookById(id):
 
 # GET INPUT DATA
 
-allBooks, libraries, numDays = parseData("a_example.txt")
+paths = [
+    r"\\tawe_dfs\students\3\989623\Documents\GitHub\GoogleHash2020\a_example.txt",
+    r"\\tawe_dfs\students\3\989623\Documents\GitHub\GoogleHash2020\b_read_on.txt",
+    r"\\tawe_dfs\students\3\989623\Documents\GitHub\GoogleHash2020\c_incunabula.txt",
+    r"\\tawe_dfs\students\3\989623\Documents\GitHub\GoogleHash2020\d_tough_choices.txt",
+    r"\\tawe_dfs\students\3\989623\Documents\GitHub\GoogleHash2020\e_so_many_books.txt",
+    r"\\tawe_dfs\students\3\989623\Documents\GitHub\GoogleHash2020\f_libraries_of_the_world.txt"
+]
 
-numAllBooks = len(allBooks)
-numLibraries = len(libraries)
+for file_path in paths:
 
-#for b in allBooks:
-    #print(b.id, b.score)
+    if os.path.exists(file_path.replace(".txt", "_out.txt")):
+        continue
 
-for l in libraries:
-    print("l{} has [b{}] daysToSignUp{} booksPerDay{}".format(l.id, ", b".join(str(b.id) + " score" + str(b.score) for b in l.books), l.daysToSignUp, l.booksPerDay))
+    allBooks, libraries, numDays = parseData(file_path)
 
-currentDay = 0
+    numAllBooks = len(allBooks)
+    numLibraries = len(libraries)
 
-def getScore(l):
-    return l.getScore()
-
-libraries.sort(key=getScore, reverse=True)
-
-signUpReady = True
-#signUpCounter = None
-currentLibrary = None
-scannedBooks = []
-while currentDay < numDays:
-
-    libraries.sort(key=getScore, reverse=True)
-    print(currentDay, "/", numDays)
+    #for b in allBooks:
+        #print(b.id, b.score)
 
     for l in libraries:
+        print("l{} has [b{}] daysToSignUp{} booksPerDay{}".format(l.id, ", b".join(str(b.id) + " score" + str(b.score) for b in l.books), l.daysToSignUp, l.booksPerDay))
 
-        #print(l.id, l.getScore())
+    currentDay = 0
+
+    def getScore(l):
+        return l.getScore()
+
+    libraries.sort(key=getScore, reverse=True)
+
+    signUpReady = True
+    #signUpCounter = None
+    currentLibrary = None
+    scannedBooks = []
+    signUpOrder = []
+    while currentDay < numDays:
+
+        #libraries.sort(key=getScore, reverse=True)
+        #print(currentDay, "/", numDays)
+
+        for l in libraries:
+
+            #print(l.id, l.getScore())
+                
+            if signUpReady == True:
+                if l.signedUp == False:
+                    signUpReady = False
+                    #print("signing up l{} - {} days remain - signed up {} - score {}".format(l.id, l.signUpCounter, str(l.signedUp), str(l.getScore())))
+                    currentLibrary = l
+                    signUpOrder.append(currentLibrary)
+                    continue
             
-        if signUpReady == True:
-            if l.signedUp == False:
-                signUpReady = False
-                #print("signing up l{} - {} days remain - signed up {} - score {}".format(l.id, l.signUpCounter, str(l.signedUp), str(l.getScore())))
-                currentLibrary = l
+            if l.signedUp:
+                books = l.scan()
+                if books:
+                    #print("l{} scans [b{}]".format(l.id, ", b".join(str(b.id) + " score" + str(b.score) for b in books)))
+                    for b in books:
+                        #print("l{} scans [b{} score{}]".format(l.id, b.id, b.score))
+                        scannedBooks.append(b)
+            
+            #libraries.sort(key=getScore, reverse=True)
         
         if currentLibrary != None:
-            print("signing up l{} - {} days remain - signed up {} - score {}".format(currentLibrary.id, currentLibrary.signUpCounter, str(currentLibrary.signedUp), str(currentLibrary.getScore())))
-            if currentLibrary.signUpCounter <= 0:
-                signUpReady = True
-            currentLibrary.decrementCounter()
-            
-                    #continue
-        
-        if l.signedUp:
-            books = l.scan()
-            if books:
-                #print("l{} scans [b{}]".format(l.id, ", b".join(str(b.id) + " score" + str(b.score) for b in books)))
-                for b in books:
-                    print("l{} scans [b{} score{}]".format(l.id, b.id, b.score))
-                    scannedBooks.append(b)
-        
-        #libraries.sort(key=getScore, reverse=True)
-    
-    currentDay += 1
+                #print("signing up l{} - {} days remain - signed up {} - score {}".format(currentLibrary.id, currentLibrary.signUpCounter, str(currentLibrary.signedUp), str(currentLibrary.getScore())))
+                currentLibrary.decrementCounter()
+                if currentLibrary.signUpCounter <= 0:
+                    signUpReady = True
+                #currentLibrary.decrementCounter()
+
+        currentDay += 1
+
+    with open(file_path.replace(".txt", "_out.txt"), "w") as f:
+        f.write(str(len(list(l for l in libraries if len(l.sentOrderedBooks) != 0))) + "\n")
+        for l in libraries:
+            if len(l.sentOrderedBooks) != 0:
+                f.write(str(l.id) + " " + str(len(l.sentOrderedBooks)) + "\n")
+                f.write(" ".join(str(bId) for bId in l.sentOrderedBooks) + "\n")
+        f.close()
