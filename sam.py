@@ -60,10 +60,6 @@ def parseData(fileName):
         numBooks = int(libraryData[0])
         libraryBooksIds = lines[count+1].split() # get book ids for this library from next line
         libraryBooks = []
-        #for j in range(len(libraryBooksIds)):
-            #for book in allBooks:
-                #if book.id == int(libraryBooksIds[j]):
-                    #libraryBooks.append(book)
         for i in libraryBooksIds:
             libraryBooks.append(allBooks[int(i)])
         libraries.append(Library(libraryBooks, libraryData[1], libraryData[2]))
@@ -79,28 +75,6 @@ allBooks, libraries, numDays = parseData("a_example.txt")
 
 numAllBooks = len(allBooks)
 numLibraries = len(libraries)
-
-#allBooks = []
-#libraries = []
-
-#for i in range(numAllBooks):
-    #score = random.randint(0, 10**3)
-    #allBooks.append(Book(score))
-
-#for i in range(numLibraries):
-    #numberOfBooks = random.randint(1, numAllBooks)
-    #daysToSignUp = random.randint(1, 10**5)
-    #booksPerDay = random.randint(1, 10**5)
-    
-    #books = []
-    #pool = list(range(numAllBooks))
-    #for b in range(numberOfBooks):
-        # get ids
-        #choice = random.choice(pool)
-        #pool.pop(pool.index(choice))
-        #books.append(getBookById(choice))
-
-    #libraries.append(Library(books, daysToSignUp, booksPerDay))
 
 for b in allBooks:
     print(b.id, b.score)
