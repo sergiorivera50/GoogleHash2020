@@ -3,11 +3,39 @@ def parseData(fileName):
         lines = list(l.strip() for l in f.readlines())
         f.close()
 
-    for i in range(len(lines)):
-        print(lines[i])
+    initData = lines[0].split()
+    numBooks = int(initData[0])
+    numLibraries = int(initData[1])
+    days = int(initData[2])
 
-print("hello")
-parseData("b_read_on.txt")
+    print(numBooks, numLibraries, days)
+    
+    bookScores = lines[1].split()
+    print(bookScores)
+
+    allBooks = []
+    for i in range(numBooks):
+        allBooks.append(Book(bookScores[i]))
+
+    libraries = []
+    libraryCount = 0
+    count = 2
+    for i in range(numLibraries):
+        libraryData = lines[count].split()
+        numBooks = int(libraryData[0])
+        libraryBooksIds = lines[count+1].split() # get book ids for this library from next line
+        libraryBooks = []
+        for j in range(len(libraryBooksIds)):
+            for book in allBooks:
+                if book.id == int(libraryBooksIds[j]):
+                    libraryBooks.append(book)
+        libraries[libraryCount].append(Library(libraryBooks, libraryData[1], libraryData[2]))
+        count += 2 # jump to the next library
+        libraryCount += 1
+    
+
+
+parseData(r"\\tawe_dfs\students\1\1906931\Documents\GitHub\GoogleHash2020\a_example.txt")
 
 """
 init_data = lines[0].split()
