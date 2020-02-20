@@ -60,7 +60,7 @@ class Library:
                 #print(b)
                 booksToScan.append(b)
                 self.books.pop(j)
-                #break
+                break
                 if len(booksToScan) == self.booksPerDay:
                     break
             
@@ -120,7 +120,7 @@ def getBookById(id):
 
 # GET INPUT DATA
 
-allBooks, libraries, numDays = parseData("a_example.txt")
+allBooks, libraries, numDays = parseData(r"\\tawe_dfs\students\1\1906931\Documents\GitHub\GoogleHash2020\a_example.txt")
 
 numAllBooks = len(allBooks)
 numLibraries = len(libraries)
@@ -142,11 +142,11 @@ currentLibrary = None
 scannedBooks = []
 while currentDay < numDays:
 
-    libraries.sort(key=getScore, reverse=True)
     print(currentDay, "/", numDays)
 
     for l in libraries:
         #print(l.id, l.getScore())
+        libraries.sort(key=getScore, reverse=True)
             
         if not l.signUp():
             print("signing up l{} - {} days remain - signed up {} - score {}".format(l.id, l.signUpCounter, str(l.signedUp), str(l.getScore())))
