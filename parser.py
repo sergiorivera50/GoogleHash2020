@@ -7,7 +7,7 @@ def parseData(fileName):
         print(lines[i])
 
 print("hello")
-parseData("read_on.txt")
+parseData("b_read_on.txt")
 
 """
 init_data = lines[0].split()
