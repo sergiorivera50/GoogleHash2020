@@ -21,8 +21,8 @@ class Library:
         self.signUpStartDay = None
         self.signUpEndDay = None
 
-        self.id = Book.inst_num
-        Book.inst_num += 1
+        self.id = Library.inst_num
+        Library.inst_num += 1
     
     def signUp(self):
         if self.signUpStartDay == None:
@@ -32,6 +32,9 @@ class Library:
             if currentDay >= self.signUpEndDay:
                 return True
         return False
+
+    def getScore(self):
+        return len(self.books) * (1/int(self.daysToSignUp)) * int(self.booksPerDay)
 
 def parseData(fileName):
     with open(fileName, "r") as f:
@@ -43,10 +46,10 @@ def parseData(fileName):
     numLibraries = int(initData[1])
     days = int(initData[2])
 
-    print(numBooks, numLibraries, days)
+    #print(numBooks, numLibraries, days)
     
     bookScores = lines[1].split()
-    print(bookScores)
+    #print(bookScores)
 
     allBooks = []
     for i in range(numBooks):
@@ -60,13 +63,9 @@ def parseData(fileName):
         numBooks = int(libraryData[0])
         libraryBooksIds = lines[count+1].split() # get book ids for this library from next line
         libraryBooks = []
-        #for j in range(len(libraryBooksIds)):
-            #for book in allBooks:
-                #if book.id == int(libraryBooksIds[j]):
-                    #libraryBooks.append(book)
         for i in libraryBooksIds:
             libraryBooks.append(allBooks[int(i)])
-        libraries.append(Library(libraryBooks, libraryData[1], libraryData[2]))
+        libraries.append(Library(libraryBooks, int(libraryData[1]), int(libraryData[2])))
         count += 2 # jump to the next library
         libraryCount += 1
 
@@ -75,46 +74,35 @@ def parseData(fileName):
 def getBookById(id):
     return allBooks[id]
 
+# GET INPUT DATA
+
 allBooks, libraries, numDays = parseData("a_example.txt")
 
 numAllBooks = len(allBooks)
 numLibraries = len(libraries)
 
-#allBooks = []
-#libraries = []
-
-#for i in range(numAllBooks):
-    #score = random.randint(0, 10**3)
-    #allBooks.append(Book(score))
-
-#for i in range(numLibraries):
-    #numberOfBooks = random.randint(1, numAllBooks)
-    #daysToSignUp = random.randint(1, 10**5)
-    #booksPerDay = random.randint(1, 10**5)
-    
-    #books = []
-    #pool = list(range(numAllBooks))
-    #for b in range(numberOfBooks):
-        # get ids
-        #choice = random.choice(pool)
-        #pool.pop(pool.index(choice))
-        #books.append(getBookById(choice))
-
-    #libraries.append(Library(books, daysToSignUp, booksPerDay))
-
 for b in allBooks:
     print(b.id, b.score)
 
 for l in libraries:
-    print("l{} has [b{}]".format(l.id, ", b".join(str(b.id) + " score" + str(b.score) for b in l.books)))
+    print("l{} has [b{}] daysToSignUp{} booksPerDay{}".format(l.id, ", b".join(str(b.id) + " score" + str(b.score) for b in l.books), l.daysToSignUp, l.booksPerDay))
 
 currentDay = 0
 
-#with open("b_read_on.txt", "r") as f:
-    #print(f.read())
+def getScore(l):
+    return l.getScore()
 
-#print(os.listdir())
+libraries.sort(key=getScore, reverse=True)
 
+currentLibrary = None
 while currentDay < numDays:
-    #print("hello")
-    pass
+    for l in libraries:
+        print(l.id, l.getScore())
+        if l.signedUp == False and currentLibrary != l.id:
+            
+            l.signUp()
+            print("signing up l{} - {} ".format(l.id, l.signUpEndDay - currentDay, l.signUpEndDay))
+            currentLibrary = l.id
+    
+    #input()
+    currentDay += 1
