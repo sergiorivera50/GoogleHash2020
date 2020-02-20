@@ -25,6 +25,7 @@ class Library:
         self.signedUp = False
         #self.numScanning = False
         self.signUpCounter = self.daysToSignUp
+        self.singingUp = False
         #self.scanCounter = 1
         #self.signUpStartDay = None
         #self.signUpEndDay = None
@@ -38,8 +39,10 @@ class Library:
             
         if self.signUpCounter <= 0:
             self.signedUp = True
+            self.signingUp = False
             return True
 
+        self.signingUp = True
         self.signUpCounter -= 1
         return False
 
@@ -53,16 +56,20 @@ class Library:
             #print(self.books)
 
             for j, b in enumerate(self.books):
-                if b in scannedBooks:
-                    #booksToRemove.append(b)
-                    self.books.pop(j)
+                if b == None:
                     continue
-                #print(b)
-                booksToScan.append(b)
-                self.books.pop(j)
-                #break
-                if len(booksToScan) == self.booksPerDay:
-                    break
+                if b in scannedBooks:
+                    booksToRemove.append(j)
+                    continue
+                if len(booksToScan) < self.booksPerDay:
+                    booksToScan.append(b)
+                    booksToRemove.append(j)
+                    continue
+                break
+
+            for i in range(len(booksToRemove)):
+                self.books[i] = None
+            
             
             #print(self.books)
             
@@ -74,10 +81,12 @@ class Library:
 
         return booksToScan
 
+    def getNumBooks(self):
+        return len(list(b for b in self.books if b != None))
 
     def getScore(self):
-        if len(self.books) > 0:
-            return (1/int(self.daysToSignUp)) * int(self.booksPerDay) * ((sum(list(b.score for b in self.books)) / len(self.books)) / len(self.books))
+        if self.getNumBooks() > 0:
+            return (1/int(self.daysToSignUp)) * int(self.booksPerDay) * ((sum(list(b.score for b in self.books if b != None)) / self.getNumBooks()) / self.getNumBooks())
         return (1/int(self.daysToSignUp)) * int(self.booksPerDay) * 0
 
 def parseData(fileName):
@@ -138,6 +147,12 @@ def getScore(l):
 
 libraries.sort(key=getScore, reverse=True)
 
+def librarySigning(libraries):
+    for i in range(len(libraries)):
+        if libraries[i].signingUp:
+            return libraries[i]
+    return False
+
 currentLibrary = None
 scannedBooks = []
 while currentDay < numDays:
@@ -147,18 +162,19 @@ while currentDay < numDays:
 
     for l in libraries:
         #print(l.id, l.getScore())
-            
-        if not l.signUp():
+    
+        if not l.signUp() and librarySigning(libraries) == l:
             print("signing up l{} - {} days remain - signed up {} - score {}".format(l.id, l.signUpCounter, str(l.signedUp), str(l.getScore())))
             currentLibrary = l.id
             continue
-
-        books = l.scan()
-        if books:
-            #print("l{} scans [b{}]".format(l.id, ", b".join(str(b.id) + " score" + str(b.score) for b in books)))
-            for b in books:
-                print("l{} scans [b{} score{}]".format(l.id, b.id, b.score))
-                scannedBooks.append(b)
+        
+        if l.signedUp == True:
+            books = l.scan()
+            if books:
+                #print("l{} scans [b{}]".format(l.id, ", b".join(str(b.id) + " score" + str(b.score) for b in books)))
+                for b in books:
+                    print("l{} scans [b{} score{}]".format(l.id, b.id, b.score))
+                    scannedBooks.append(b)
         
     
     #input()
