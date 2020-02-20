@@ -50,24 +50,35 @@ class Library:
 
         for i in range(self.booksPerDay):
 
-            for b in self.books:
-                if b in scannedBooks:
-                    booksToRemove.append(b)
-                    continue
-                booksToScan.append(b)
-                break
-            
-        for b in booksToScan:
-            self.books[b.id] = None
+            #print(self.books)
 
-        for b in booksToRemove:
-            self.books.pop(self.books.index(b))
+            for j, b in enumerate(self.books):
+                if b in scannedBooks:
+                    #booksToRemove.append(b)
+                    self.books.pop(j)
+                    continue
+                #print(b)
+                booksToScan.append(b)
+                self.books.pop(j)
+                #break
+                if len(booksToScan) == self.booksPerDay:
+                    break
+            
+            #print(self.books)
+            
+        #for b in booksToScan:
+            #self.books[b.id] = None
+
+        #for b in booksToRemove:
+            #self.books.pop(self.books.index(b))
 
         return booksToScan
 
 
     def getScore(self):
-        return (1/int(self.daysToSignUp)) * int(self.booksPerDay) * ((sum(list(b.score for b in self.books)) / len(self.books)) / len(self.books))
+        if len(self.books) > 0:
+            return (1/int(self.daysToSignUp)) * int(self.booksPerDay) * ((sum(list(b.score for b in self.books)) / len(self.books)) / len(self.books))
+        return (1/int(self.daysToSignUp)) * int(self.booksPerDay) * 0
 
 def parseData(fileName):
     with open(fileName, "r") as f:
@@ -114,8 +125,8 @@ allBooks, libraries, numDays = parseData("a_example.txt")
 numAllBooks = len(allBooks)
 numLibraries = len(libraries)
 
-for b in allBooks:
-    print(b.id, b.score)
+#for b in allBooks:
+    #print(b.id, b.score)
 
 for l in libraries:
     print("l{} has [b{}] daysToSignUp{} booksPerDay{}".format(l.id, ", b".join(str(b.id) + " score" + str(b.score) for b in l.books), l.daysToSignUp, l.booksPerDay))
@@ -130,18 +141,24 @@ libraries.sort(key=getScore, reverse=True)
 currentLibrary = None
 scannedBooks = []
 while currentDay < numDays:
+
+    libraries.sort(key=getScore, reverse=True)
+    print(currentDay, "/", numDays)
+
     for l in libraries:
         #print(l.id, l.getScore())
             
         if not l.signUp():
             print("signing up l{} - {} days remain - signed up {} - score {}".format(l.id, l.signUpCounter, str(l.signedUp), str(l.getScore())))
             currentLibrary = l.id
-            break
+            continue
 
         books = l.scan()
         if books:
-            print("l{} scans [b{}]".format(l.id, ", b".join(str(b.id) + " score" + str(b.score) for b in books)))
-            scannedBooks.append(book)
+            #print("l{} scans [b{}]".format(l.id, ", b".join(str(b.id) + " score" + str(b.score) for b in books)))
+            for b in books:
+                print("l{} scans [b{} score{}]".format(l.id, b.id, b.score))
+                scannedBooks.append(b)
         
     
     #input()
